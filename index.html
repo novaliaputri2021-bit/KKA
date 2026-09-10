@@ -1,0 +1,1375 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MPI - Pengenalan AI | SMK Kesehatan Binatama</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter & Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Canvas Confetti for Quiz Completion -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#06b6d4',
+                            600: '#0891b2',
+                            700: '#0e7490',
+                        },
+                        violet: {
+                            500: '#8b5cf6',
+                            600: '#7c3aed',
+                            700: '#6d28d9',
+                        },
+                        pink: {
+                            500: '#ec4899',
+                            600: '#db2777',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        /* Custom animations & drag styles */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
+        }
+        .gradient-text {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #db2777 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .draggable-item {
+            cursor: grab;
+            user-select: none;
+            touch-action: none;
+        }
+        .draggable-item:active {
+            cursor: grabbing;
+        }
+        .drop-zone.hovered {
+            background-color: rgba(168, 85, 247, 0.15);
+            border-color: #a855f7;
+        }
+        .matching-line {
+            pointer-events: none;
+            position: absolute;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col justify-between selection:bg-purple-500 selection:text-white">
+
+    <!-- HEADER NAVBAR -->
+    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <!-- Brand & Teacher Info -->
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 p-0.5 shadow-md flex items-center justify-center">
+                        <div class="w-full h-full bg-white rounded-[14px] flex items-center justify-center">
+                            <i class="fa-solid me-0 fa-brain text-xl text-purple-600"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold bg-purple-100 text-purple-700 mb-0.5">
+                            SMK Kesehatan Binatama
+                        </span>
+                        <h1 class="text-lg font-bold text-slate-800 leading-tight">Pengenalan AI (Kelas X)</h1>
+                    </div>
+                </div>
+
+                <!-- Teacher Badge (Bu Novalia) -->
+                <div class="hidden md:flex items-center space-x-3 bg-purple-50 border border-purple-100 px-3.5 py-1.5 rounded-full">
+                    <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=150" alt="Guru" class="w-9 h-9 rounded-full object-cover border-2 border-purple-400 shadow-sm" />
+                    <div class="text-left">
+                        <p class="text-xs font-semibold text-purple-900 leading-tight">Novalia Putri Iswarini, S.Kom.</p>
+                        <p class="text-[10px] text-purple-600">Guru Koding &amp; AI</p>
+                    </div>
+                </div>
+
+                <!-- Navigation Tabs -->
+                <nav class="hidden lg:flex items-center space-x-1 bg-slate-100 p-1.5 rounded-2xl">
+                    <button onclick="switchTab('beranda')" id="nav-beranda" class="nav-btn px-4 py-2 text-sm font-semibold rounded-xl transition-all duration-200 bg-white text-purple-700 shadow-sm">
+                        <i class="fa-solid fa-house mr-1.5"></i> Beranda
+                    </button>
+                    <button onclick="switchTab('materi')" id="nav-materi" class="nav-btn px-4 py-2 text-sm font-semibold rounded-xl transition-all duration-200 text-slate-600 hover:text-purple-600">
+                        <i class="fa-solid fa-book-open mr-1.5"></i> Materi
+                    </button>
+                    <button onclick="switchTab('aktivitas')" id="nav-aktivitas" class="nav-btn px-4 py-2 text-sm font-semibold rounded-xl transition-all duration-200 text-slate-600 hover:text-purple-600">
+                        <i class="fa-solid fa-flask-vial mr-1.5"></i> Aktivitas
+                    </button>
+                    <button onclick="switchTab('simulasi')" id="nav-simulasi" class="nav-btn px-4 py-2 text-sm font-semibold rounded-xl transition-all duration-200 text-slate-600 hover:text-purple-600">
+                        <i class="fa-solid fa-network-wired mr-1.5"></i> Simulasi
+                    </button>
+                    <button onclick="switchTab('kuis')" id="nav-kuis" class="nav-btn px-4 py-2 text-sm font-semibold rounded-xl transition-all duration-200 text-slate-600 hover:text-purple-600">
+                        <i class="fa-solid fa-circle-question mr-1.5"></i> Kuis (10)
+                    </button>
+                </nav>
+
+                <!-- Mobile Menu Button -->
+                <button onclick="toggleMobileMenu()" class="lg:hidden p-2 rounded-xl text-slate-600 hover:bg-slate-100 focus:outline-none">
+                    <i class="fa-solid fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Navigation Menu -->
+        <div id="mobile-menu" class="hidden lg:hidden bg-white border-b border-slate-200 px-4 pt-2 pb-4 space-y-2">
+            <div class="flex items-center space-x-3 p-2 bg-purple-50 rounded-xl mb-3">
+                <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=150" alt="Guru" class="w-10 h-10 rounded-full object-cover border-2 border-purple-400" />
+                <div>
+                    <p class="text-xs font-bold text-purple-900">Novalia Putri Iswarini, S.Kom.</p>
+                    <p class="text-[11px] text-purple-600">Pengampu Koding & AI SMK Binatama</p>
+                </div>
+            </div>
+            <button onclick="switchTab('beranda'); toggleMobileMenu()" class="w-full text-left px-4 py-2.5 rounded-xl font-semibold text-slate-700 hover:bg-purple-50 hover:text-purple-700 flex items-center">
+                <i class="fa-solid fa-house w-6 text-purple-500"></i> Beranda
+            </button>
+            <button onclick="switchTab('materi'); toggleMobileMenu()" class="w-full text-left px-4 py-2.5 rounded-xl font-semibold text-slate-700 hover:bg-purple-50 hover:text-purple-700 flex items-center">
+                <i class="fa-solid fa-book-open w-6 text-purple-500"></i> Materi Pembelajaran
+            </button>
+            <button onclick="switchTab('aktivitas'); toggleMobileMenu()" class="w-full text-left px-4 py-2.5 rounded-xl font-semibold text-slate-700 hover:bg-purple-50 hover:text-purple-700 flex items-center">
+                <i class="fa-solid fa-flask-vial w-6 text-purple-500"></i> Aktivitas Interaktif
+            </button>
+            <button onclick="switchTab('simulasi'); toggleMobileMenu()" class="w-full text-left px-4 py-2.5 rounded-xl font-semibold text-slate-700 hover:bg-purple-50 hover:text-purple-700 flex items-center">
+                <i class="fa-solid fa-network-wired w-6 text-purple-500"></i> Simulasi AI
+            </button>
+            <button onclick="switchTab('kuis'); toggleMobileMenu()" class="w-full text-left px-4 py-2.5 rounded-xl font-semibold text-slate-700 hover:bg-purple-50 hover:text-purple-700 flex items-center">
+                <i class="fa-solid fa-circle-question w-6 text-purple-500"></i> Kuis Evaluasi (10 Soal)
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT CONTAINER -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow">
+
+        <!-- ================= BERANDA SECTION ================= -->
+        <section id="tab-beranda" class="tab-content transition-opacity duration-300">
+            <!-- Hero Banner -->
+            <div class="relative overflow-hidden rounded-3xl gradient-bg text-white shadow-xl mb-8 p-6 sm:p-10">
+                <div class="absolute -right-10 -bottom-10 w-80 h-80 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
+                <div class="absolute -left-10 -top-10 w-60 h-60 bg-pink-500/20 rounded-full blur-2xl pointer-events-none"></div>
+
+                <div class="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                    <div class="lg:col-span-8 space-y-4">
+                        <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-xs font-semibold tracking-wide uppercase">
+                            <i class="fa-solid fa-sparkles text-amber-300"></i> Media Pembelajaran Interaktif (MPI)
+                        </span>
+                        <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-tight">
+                            Selamat Datang di Dunia <span class="text-amber-300 underline decoration-wavy decoration-pink-400">Artificial Intelligence!</span>
+                        </h2>
+                        <p class="text-base sm:text-lg text-purple-100 max-w-2xl font-normal leading-relaxed">
+                            Halo generasi hebat SMK Kesehatan Binatama! Mari bersama Ibu <span class="font-semibold text-white">Novalia Putri Iswarini, S.Kom.</span> kita jelajahi bagaimana AI mengubah masa depan dunia teknologi dan pelayanan kesehatan modern.
+                        </p>
+
+                        <!-- Input Nama Siswa -->
+                        <div class="pt-2 flex flex-col sm:flex-row gap-3 max-w-lg">
+                            <input type="text" id="student-name" placeholder="Masukkan nama lengkapmu..." class="px-4 py-3 rounded-xl bg-white/90 backdrop-blur-sm text-slate-800 placeholder-slate-400 font-medium border-0 focus:ring-4 focus:ring-purple-300 text-sm flex-grow outline-none shadow-inner">
+                            <button onclick="saveStudentName()" class="px-6 py-3 bg-amber-400 hover:bg-amber-300 text-slate-900 font-bold rounded-xl shadow-lg transition duration-200 transform hover:-translate-y-0.5 text-sm whitespace-nowrap">
+                                Mulaii Belajar <i class="fa-solid fa-arrow-right ml-1"></i>
+                            </button>
+                        </div>
+                        <p id="welcome-msg" class="text-xs text-amber-200 font-medium hidden">
+                            <i class="fa-solid fa-circle-check mr-1"></i> Selamat belajar, <span id="display-student-name"></span>!
+                        </p>
+                    </div>
+
+                    <!-- Visual Hero Graphics -->
+                    <div class="lg:col-span-4 flex justify-center">
+                        <div class="relative w-64 h-64 sm:w-72 sm:h-72">
+                            <div class="absolute inset-0 bg-white/20 rounded-3xl transform rotate-6 scale-95 transition-transform duration-300 hover:rotate-0"></div>
+                            <div class="absolute inset-0 bg-gradient-to-br from-pink-400 to-indigo-600 rounded-3xl shadow-2xl overflow-hidden p-6 flex flex-col justify-between border border-white/30">
+                                <div class="flex justify-between items-center">
+                                    <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-white font-bold">AI</div>
+                                    <span class="px-2.5 py-1 bg-emerald-400 text-slate-900 text-xs font-extrabold rounded-full">Kelas X</span>
+                                </div>
+                                <div class="text-center my-2">
+                                    <i class="fa-solid fa-robot text-6xl text-white drop-shadow-md animate-bounce"></i>
+                                </div>
+                                <div class="bg-white/10 backdrop-blur-md rounded-xl p-3 text-xs text-center border border-white/20">
+                                    "AI tidak menggantikan manusia, tetapi manusia yang memakai AI akan memimpin masa depan!"
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Features Quick Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div onclick="switchTab('materi')" class="group bg-white p-6 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-slate-100 hover:border-purple-300 cursor-pointer flex flex-col justify-between">
+                    <div>
+                        <div class="w-12 h-12 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center text-xl font-bold mb-4 group-hover:scale-110 transition-transform">
+                            <i class="fa-solid fa-book-open"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-800 mb-1 group-hover:text-purple-600">1. Materi AI</h3>
+                        <p class="text-xs text-slate-500 leading-relaxed">Konsep dasar, sejarah singkat, jenis-jenis AI, serta penerapannya di dunia kesehatan.</p>
+                    </div>
+                    <span class="mt-4 text-xs font-bold text-purple-600 inline-flex items-center">Pelajari Materi <i class="fa-solid fa-chevron-right ml-1 text-[10px]"></i></span>
+                </div>
+
+                <div onclick="switchTab('aktivitas')" class="group bg-white p-6 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-slate-100 hover:border-pink-300 cursor-pointer flex flex-col justify-between">
+                    <div>
+                        <div class="w-12 h-12 rounded-xl bg-pink-100 text-pink-600 flex items-center justify-center text-xl font-bold mb-4 group-hover:scale-110 transition-transform">
+                            <i class="fa-solid fa-flask-vial"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-800 mb-1 group-hover:text-pink-600">2. Aktivitas</h3>
+                        <p class="text-xs text-slate-500 leading-relaxed">Studi kasus interaktif diagnosa kesehatan berbasis AI vs Non-AI.</p>
+                    </div>
+                    <span class="mt-4 text-xs font-bold text-pink-600 inline-flex items-center">Mulai Aktivitas <i class="fa-solid fa-chevron-right ml-1 text-[10px]"></i></span>
+                </div>
+
+                <div onclick="switchTab('simulasi')" class="group bg-white p-6 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-slate-100 hover:border-cyan-300 cursor-pointer flex flex-col justify-between">
+                    <div>
+                        <div class="w-12 h-12 rounded-xl bg-cyan-100 text-cyan-600 flex items-center justify-center text-xl font-bold mb-4 group-hover:scale-110 transition-transform">
+                            <i class="fa-solid fa-network-wired"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-800 mb-1 group-hover:text-cyan-600">3. Simulasi</h3>
+                        <p class="text-xs text-slate-500 leading-relaxed">Visualisasi interaktif melatih model Machine Learning klasifikasi data.</p>
+                    </div>
+                    <span class="mt-4 text-xs font-bold text-cyan-600 inline-flex items-center">Uji Simulasi <i class="fa-solid fa-chevron-right ml-1 text-[10px]"></i></span>
+                </div>
+
+                <div onclick="switchTab('kuis')" class="group bg-white p-6 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-slate-100 hover:border-emerald-300 cursor-pointer flex flex-col justify-between">
+                    <div>
+                        <div class="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-xl font-bold mb-4 group-hover:scale-110 transition-transform">
+                            <i class="fa-solid fa-clipboard-check"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-800 mb-1 group-hover:text-emerald-600">4. Kuis (10 Soal)</h3>
+                        <p class="text-xs text-slate-500 leading-relaxed">Uji pemahamanmu lewat Pilihan Ganda, Menjodohkan, Drag &amp; Drop, dan Benar/Salah.</p>
+                    </div>
+                    <span class="mt-4 text-xs font-bold text-emerald-600 inline-flex items-center">Kerjakan Kuis <i class="fa-solid fa-chevron-right ml-1 text-[10px]"></i></span>
+                </div>
+            </div>
+
+            <!-- Profile Info Card / Teacher Message -->
+            <div class="bg-gradient-to-r from-purple-50 via-white to-pink-50 rounded-2xl p-6 border border-purple-100 flex flex-col md:flex-row items-center gap-6">
+                <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=300" alt="Ibu Novalia" class="w-24 h-24 rounded-2xl object-cover shadow-md border-2 border-white">
+                <div class="space-y-2 text-center md:text-left">
+                    <span class="px-3 py-1 bg-purple-200 text-purple-800 text-xs font-bold rounded-full">Pesan dari Pengampu</span>
+                    <h4 class="text-xl font-bold text-slate-800">Novalia Putri Iswarini, S.Kom.</h4>
+                    <p class="text-sm text-slate-600 leading-relaxed">
+                        "Anak-anakku di SMK Kesehatan Binatama, pembelajaran Koding dan AI ini dirancang khusus agar kalian tidak hanya memahami teori komputer, namun juga siap menjadi pionir teknologi medis masa depan. Selamat belajar dengan gembira dan penuh rasa ingin tahu!"
+                    </p>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ================= MATERI SECTION ================= -->
+        <section id="tab-materi" class="tab-content hidden transition-opacity duration-300">
+            <div class="mb-8 text-center max-w-2xl mx-auto">
+                <span class="px-3 py-1 bg-purple-100 text-purple-700 text-xs font-extrabold rounded-full uppercase tracking-wider">Modul Pembelajaran</span>
+                <h2 class="text-3xl font-extrabold text-slate-900 mt-2">Pengenalan Kecerdasan Artifisial</h2>
+                <p class="text-sm text-slate-600 mt-1">Pelajari 4 topik utama di bawah ini untuk memahami dasar-dasar AI.</p>
+            </div>
+
+            <!-- Sub-tab buttons for Materi -->
+            <div class="flex flex-wrap justify-center gap-2 mb-8">
+                <button onclick="switchMateriSub('materi-1')" id="materi-sub-btn-1" class="materi-sub-btn px-4 py-2 text-xs sm:text-sm font-bold rounded-xl bg-purple-600 text-white shadow-md transition">
+                    1. Definisi &amp; Konsep AI
+                </button>
+                <button onclick="switchMateriSub('materi-2')" id="materi-sub-btn-2" class="materi-sub-btn px-4 py-2 text-xs sm:text-sm font-bold rounded-xl bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 transition">
+                    2. AI vs ML vs Deep Learning
+                </button>
+                <button onclick="switchMateriSub('materi-3')" id="materi-sub-btn-3" class="materi-sub-btn px-4 py-2 text-xs sm:text-sm font-bold rounded-xl bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 transition">
+                    3. AI dalam Bidang Kesehatan
+                </button>
+                <button onclick="switchMateriSub('materi-4')" id="materi-sub-btn-4" class="materi-sub-btn px-4 py-2 text-xs sm:text-sm font-bold rounded-xl bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 transition">
+                    4. Etika &amp; Masa Depan AI
+                </button>
+            </div>
+
+            <!-- Sub-Materi 1 -->
+            <div id="materi-sub-1" class="materi-card space-y-6">
+                <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-slate-100">
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                        <div class="lg:col-span-7 space-y-4">
+                            <span class="px-3 py-1 bg-purple-100 text-purple-700 text-xs font-bold rounded-full">Topik 1</span>
+                            <h3 class="text-2xl font-bold text-slate-900">Apa Itu Kecerdasan Artifisial (AI)?</h3>
+                            <p class="text-sm text-slate-600 leading-relaxed">
+                                <strong class="text-purple-700">Kecerdasan Artifisial (Artificial Intelligence / AI)</strong> adalah cabang ilmu komputer yang berfokus pada pembuatan sistem atau mesin yang mampu meniru kecerdasan manusia. Mesin AI dirancang untuk **belajar (learning)**, **berpikir logis (reasoning)**, dan **memperbaiki diri secara mandiri (self-correction)**.
+                            </p>
+                            <div class="p-4 bg-purple-50 rounded-2xl border-l-4 border-purple-500 text-xs text-purple-900 space-y-1">
+                                <p class="font-bold"><i class="fa-solid fa-lightbulb text-amber-500 mr-1"></i> Karakteristik Utama AI:</p>
+                                <ul class="list-disc list-inside space-y-1 text-slate-700">
+                                    <li>Menganalisis data dalam jumlah sangat besar secara cepat.</li>
+                                    <li>Mengenali pola numerik, teks, suara, dan gambar.</li>
+                                    <li>Membantu manusia mengambil keputusan yang akurat.</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="lg:col-span-5 flex justify-center">
+                            <img src="https://images.unsplash.com/photo-1677442136019-21780efad99a?auto=format&fit=crop&q=80&w=600" alt="AI Brain Conceptual Illustration" class="rounded-2xl shadow-lg border border-slate-200 object-cover w-full h-64">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cards Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm space-y-3">
+                        <div class="w-10 h-10 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold">
+                            <i class="fa-solid fa-bolt"></i>
+                        </div>
+                        <h4 class="font-bold text-slate-800">Narrow AI (AI Sempit / Lemah)</h4>
+                        <p class="text-xs text-slate-600 leading-relaxed">
+                            AI yang dirancang khusus untuk menjalankan satu tugas tertentu. Contohnya: Siri/Google Assistant, detektor penyakit pada sampel darah, atau pendeteksi spam email.
+                        </p>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm space-y-3">
+                        <div class="w-10 h-10 rounded-lg bg-pink-100 text-pink-600 flex items-center justify-center font-bold">
+                            <i class="fa-solid fa-atom"></i>
+                        </div>
+                        <h4 class="font-bold text-slate-800">General AI (AI Umum)</h4>
+                        <p class="text-xs text-slate-600 leading-relaxed">
+                            Sistem hipotetis yang memiliki kemampuan kognitif setara dengan otak manusia secara umum. Hingga saat ini, General AI masih dalam tahap riset dan pengembangan.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sub-Materi 2 -->
+            <div id="materi-sub-2" class="materi-card hidden space-y-6">
+                <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-slate-100">
+                    <div class="max-w-3xl space-y-4">
+                        <span class="px-3 py-1 bg-pink-100 text-pink-700 text-xs font-bold rounded-full">Topik 2</span>
+                        <h3 class="text-2xl font-bold text-slate-900">Hubungan AI, Machine Learning, &amp; Deep Learning</h3>
+                        <p class="text-sm text-slate-600 leading-relaxed">
+                            Banyak orang menganggap AI, Machine Learning, dan Deep Learning adalah hal yang sama. Padahal ketiganya merupakan tingkatan konsep yang saling melengkapi seperti lapisan bawang!
+                        </p>
+                    </div>
+
+                    <div class="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- Card 1 -->
+                        <div class="p-5 rounded-2xl bg-indigo-50 border border-indigo-100 space-y-3">
+                            <span class="text-xs font-extrabold text-indigo-600 uppercase">Lapisan Terluar</span>
+                            <h4 class="text-lg font-bold text-indigo-900">1. Artificial Intelligence</h4>
+                            <p class="text-xs text-indigo-800 leading-relaxed">
+                                Payung besar teknologi yang memungkinkan mesin bertindak cerdas dan meniru kemampuan otak manusia.
+                            </p>
+                        </div>
+                        <!-- Card 2 -->
+                        <div class="p-5 rounded-2xl bg-purple-50 border border-purple-100 space-y-3">
+                            <span class="text-xs font-extrabold text-purple-600 uppercase">Lapisan Tengah</span>
+                            <h4 class="text-lg font-bold text-purple-900">2. Machine Learning (ML)</h4>
+                            <p class="text-xs text-purple-800 leading-relaxed">
+                                Cabang AI di mana mesin diberikan sekumpulan data dan algoritma agar dapat "belajar" sendiri tanpa diprogram secara konvensional.
+                            </p>
+                        </div>
+                        <!-- Card 3 -->
+                        <div class="p-5 rounded-2xl bg-pink-50 border border-pink-100 space-y-3">
+                            <span class="text-xs font-extrabold text-pink-600 uppercase">Lapisan Terdalam</span>
+                            <h4 class="text-lg font-bold text-pink-900">3. Deep Learning (DL)</h4>
+                            <p class="text-xs text-pink-800 leading-relaxed">
+                                Bagian khusus dari ML yang mengadopsi struktur Jaringan Saraf Tiruan (Artificial Neural Network) mirip jaringan neuron otak manusia.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sub-Materi 3 -->
+            <div id="materi-sub-3" class="materi-card hidden space-y-6">
+                <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-slate-100">
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                        <div class="lg:col-span-7 space-y-4">
+                            <span class="px-3 py-1 bg-emerald-100 text-emerald-700 text-xs font-bold rounded-full">Topik 3 (Khusus SMK Kesehatan)</span>
+                            <h3 class="text-2xl font-bold text-slate-900">Penerapan AI di Dunia Kesehatan &amp; Keperawatan</h3>
+                            <p class="text-sm text-slate-600 leading-relaxed">
+                                Sebagai siswa SMK Kesehatan Binatama, penting memahami bagaimana AI mendukung kerja perawat, apoteker, laboratorium, dan dokter dalam menyelamatkan nyawa manusia.
+                            </p>
+                            <ul class="space-y-3 text-xs text-slate-700">
+                                <li class="flex items-start gap-2.5">
+                                    <div class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0 mt-0.5"><i class="fa-solid fa-check text-[10px]"></i></div>
+                                    <span><strong>Deteksi Citra Medis:</strong> Membaca Rontgen, CT-Scan, dan MRI untuk mendeteksi sel kanker atau pneumonia secara presisi tinggi.</span>
+                                </li>
+                                <li class="flex items-start gap-2.5">
+                                    <div class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0 mt-0.5"><i class="fa-solid fa-check text-[10px]"></i></div>
+                                    <span><strong>Asisten Kesehatan Digital:</strong> Monitoring Tanda-Tanda Vital (TTV) pasien secara otomatis dan memberi peringatan dini.</span>
+                                </li>
+                                <li class="flex items-start gap-2.5">
+                                    <div class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0 mt-0.5"><i class="fa-solid fa-check text-[10px]"></i></div>
+                                    <span><strong>Analisis Formula Obat:</strong> Mengakselerasi penemuan obat baru dan menyesuaikan dosis obat spesifik bagi tiap pasien.</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="lg:col-span-5">
+                            <img src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&q=80&w=600" alt="Healthcare Technology AI" class="rounded-2xl shadow-lg border border-slate-200 object-cover w-full h-64">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sub-Materi 4 -->
+            <div id="materi-sub-4" class="materi-card hidden space-y-6">
+                <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-slate-100 space-y-4">
+                    <span class="px-3 py-1 bg-amber-100 text-amber-700 text-xs font-bold rounded-full">Topik 4</span>
+                    <h3 class="text-2xl font-bold text-slate-900">Etika &amp; Tanggung Jawab Penggunaan AI</h3>
+                    <p class="text-sm text-slate-600 leading-relaxed">
+                        Meskipun sangat pintar, kecerdasan buatan tetap memerlukan arahan moral manusia. AI tidak memiliki emosi, empati, maupun intuisi kemanusiaan.
+                    </p>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+                        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-2">
+                            <h5 class="font-bold text-purple-700"><i class="fa-solid fa-shield-halved mr-1"></i> Privasi Data Pasien</h5>
+                            <p class="text-slate-600">Data rekam medis pasien bersifat amat rahasia dan wajib dilindungi dari kebocoran.</p>
+                        </div>
+                        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-2">
+                            <h5 class="font-bold text-purple-700"><i class="fa-solid fa-scale-balanced mr-1"></i> Bias Algoritma</h5>
+                            <p class="text-slate-600">Jika data latih AI tidak seimbang, AI bisa memberikan hasil diagnosa yang memihak kelompok tertentu.</p>
+                        </div>
+                        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-2">
+                            <h5 class="font-bold text-purple-700"><i class="fa-solid fa-heart-pulse mr-1"></i> Sentuhan Manusia</h5>
+                            <p class="text-slate-600">AI mendukung tenaga kesehatan, namun empati dan kasih sayang perawat tidak bisa digantikan mesin!</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ================= AKTIVITAS SECTION ================= -->
+        <section id="tab-aktivitas" class="tab-content hidden transition-opacity duration-300">
+            <div class="mb-8 text-center max-w-2xl mx-auto">
+                <span class="px-3 py-1 bg-pink-100 text-pink-700 text-xs font-extrabold rounded-full uppercase tracking-wider">Aktivitas Praktik</span>
+                <h2 class="text-3xl font-extrabold text-slate-900 mt-2">Detektif AI Kesehatan 🔍</h2>
+                <p class="text-sm text-slate-600 mt-1">Uji kemampuan analisamu! Analisis 4 skenario di bawah ini lalu tentukan apakah skenario tersebut memanfaatkan teknologi AI atau Non-AI.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
+                <!-- Case 1 -->
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 flex flex-col justify-between">
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="px-2.5 py-1 bg-purple-100 text-purple-700 text-xs font-bold rounded-lg">Kasus 1</span>
+                            <i class="fa-solid fa-temperature-three-quarters text-pink-500 text-xl"></i>
+                        </div>
+                        <h4 class="font-bold text-slate-800 text-base">Termometer Infrared Digital</h4>
+                        <p class="text-xs text-slate-600 leading-relaxed">
+                            Alat pengukur suhu tubuh yang membaca gelombang inframerah kulit pasien lalu langsung mengubah angka suhu sesuai rumus sensor terkalibrasi secara tetap.
+                        </p>
+                    </div>
+                    <div class="mt-6 pt-4 border-t border-slate-100">
+                        <p class="text-xs font-semibold text-slate-700 mb-2">Pilih Jenis Teknologi:</p>
+                        <div class="grid grid-cols-2 gap-2" id="act-btn-1">
+                            <button onclick="checkActivity(1, 'non-ai')" class="py-2.5 px-3 bg-slate-100 hover:bg-purple-100 hover:text-purple-700 text-slate-700 text-xs font-bold rounded-xl transition">
+                                Non-AI (Otomatis Biasa)
+                            </button>
+                            <button onclick="checkActivity(1, 'ai')" class="py-2.5 px-3 bg-slate-100 hover:bg-purple-100 hover:text-purple-700 text-slate-700 text-xs font-bold rounded-xl transition">
+                                AI (Artificial Intelligence)
+                            </button>
+                        </div>
+                        <div id="act-feedback-1" class="mt-3 hidden text-xs p-3 rounded-xl"></div>
+                    </div>
+                </div>
+
+                <!-- Case 2 -->
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 flex flex-col justify-between">
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="px-2.5 py-1 bg-purple-100 text-purple-700 text-xs font-bold rounded-lg">Kasus 2</span>
+                            <i class="fa-solid fa-x-ray text-indigo-500 text-xl"></i>
+                        </div>
+                        <h4 class="font-bold text-slate-800 text-base">Sistem Pemindai Rontgen Paru-Paru</h4>
+                        <p class="text-xs text-slate-600 leading-relaxed">
+                            Aplikasi yang dilatih menggunakan 50.000 foto Rontgen. Sistem belajar mengenali bercak halus penanda flek paru-paru secara mandiri dan memberi skor risiko penyakit.
+                        </p>
+                    </div>
+                    <div class="mt-6 pt-4 border-t border-slate-100">
+                        <p class="text-xs font-semibold text-slate-700 mb-2">Pilih Jenis Teknologi:</p>
+                        <div class="grid grid-cols-2 gap-2" id="act-btn-2">
+                            <button onclick="checkActivity(2, 'non-ai')" class="py-2.5 px-3 bg-slate-100 hover:bg-purple-100 hover:text-purple-700 text-slate-700 text-xs font-bold rounded-xl transition">
+                                Non-AI (Otomatis Biasa)
+                            </button>
+                            <button onclick="checkActivity(2, 'ai')" class="py-2.5 px-3 bg-slate-100 hover:bg-purple-100 hover:text-purple-700 text-slate-700 text-xs font-bold rounded-xl transition">
+                                AI (Artificial Intelligence)
+                            </button>
+                        </div>
+                        <div id="act-feedback-2" class="mt-3 hidden text-xs p-3 rounded-xl"></div>
+                    </div>
+                </div>
+
+                <!-- Case 3 -->
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 flex flex-col justify-between">
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="px-2.5 py-1 bg-purple-100 text-purple-700 text-xs font-bold rounded-lg">Kasus 3</span>
+                            <i class="fa-solid fa-heart-pulse text-rose-500 text-xl"></i>
+                        </div>
+                        <h4 class="font-bold text-slate-800 text-base">Smartwatch Pemantau Detak Jantung</h4>
+                        <p class="text-xs text-slate-600 leading-relaxed">
+                            Jam tangan pintar yang mempelajari irama detak jantung pengguna sehari-hari, lalu mendeteksi Anomali Aritmia dan secara otomatis menghubungi ambulans jika pengguna pingsan.
+                        </p>
+                    </div>
+                    <div class="mt-6 pt-4 border-t border-slate-100">
+                        <p class="text-xs font-semibold text-slate-700 mb-2">Pilih Jenis Teknologi:</p>
+                        <div class="grid grid-cols-2 gap-2" id="act-btn-3">
+                            <button onclick="checkActivity(3, 'non-ai')" class="py-2.5 px-3 bg-slate-100 hover:bg-purple-100 hover:text-purple-700 text-slate-700 text-xs font-bold rounded-xl transition">
+                                Non-AI (Otomatis Biasa)
+                            </button>
+                            <button onclick="checkActivity(3, 'ai')" class="py-2.5 px-3 bg-slate-100 hover:bg-purple-100 hover:text-purple-700 text-slate-700 text-xs font-bold rounded-xl transition">
+                                AI (Artificial Intelligence)
+                            </button>
+                        </div>
+                        <div id="act-feedback-3" class="mt-3 hidden text-xs p-3 rounded-xl"></div>
+                    </div>
+                </div>
+
+                <!-- Case 4 -->
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 flex flex-col justify-between">
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="px-2.5 py-1 bg-purple-100 text-purple-700 text-xs font-bold rounded-lg">Kasus 4</span>
+                            <i class="fa-solid fa-calculator text-amber-500 text-xl"></i>
+                        </div>
+                        <h4 class="font-bold text-slate-800 text-base">Kalkulator Indeks Massa Tubuh (IMT)</h4>
+                        <p class="text-xs text-slate-600 leading-relaxed">
+                            Aplikasi web yang menghitung skor IMT berdasarkan rumus matematika baku: berat badan (kg) dibagi tinggi badan kuadrat (m²).
+                        </p>
+                    </div>
+                    <div class="mt-6 pt-4 border-t border-slate-100">
+                        <p class="text-xs font-semibold text-slate-700 mb-2">Pilih Jenis Teknologi:</p>
+                        <div class="grid grid-cols-2 gap-2" id="act-btn-4">
+                            <button onclick="checkActivity(4, 'non-ai')" class="py-2.5 px-3 bg-slate-100 hover:bg-purple-100 hover:text-purple-700 text-slate-700 text-xs font-bold rounded-xl transition">
+                                Non-AI (Otomatis Biasa)
+                            </button>
+                            <button onclick="checkActivity(4, 'ai')" class="py-2.5 px-3 bg-slate-100 hover:bg-purple-100 hover:text-purple-700 text-slate-700 text-xs font-bold rounded-xl transition">
+                                AI (Artificial Intelligence)
+                            </button>
+                        </div>
+                        <div id="act-feedback-4" class="mt-3 hidden text-xs p-3 rounded-xl"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ================= SIMULASI SECTION ================= -->
+        <section id="tab-simulasi" class="tab-content hidden transition-opacity duration-300">
+            <div class="mb-8 text-center max-w-2xl mx-auto">
+                <span class="px-3 py-1 bg-cyan-100 text-cyan-700 text-xs font-extrabold rounded-full uppercase tracking-wider">Laboratorium Simulasi AI</span>
+                <h2 class="text-3xl font-extrabold text-slate-900 mt-2">Simulasi Melatih Machine Learning 🧪</h2>
+                <p class="text-sm text-slate-600 mt-1">
+                    Coba tambahkan data sampel sampel Sehat (Hijau) dan Gejala Riset (Merah) pada canvas, lalu klik <strong>"Latih Model AI"</strong> untuk melihat bagaimana AI memisahkan area keputusan!
+                </p>
+            </div>
+
+            <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-slate-100 max-w-4xl mx-auto space-y-6">
+                <!-- Simulator Toolbar -->
+                <div class="flex flex-wrap items-center justify-between gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-200">
+                    <div class="flex items-center space-x-2">
+                        <span class="text-xs font-bold text-slate-700">Pilih Data Input:</span>
+                        <button onclick="setSimClass('green')" id="btn-class-green" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-500 text-white ring-2 ring-emerald-300 transition">
+                            <i class="fa-solid fa-circle text-[10px] mr-1"></i> Sehat (Hijau)
+                        </button>
+                        <button onclick="setSimClass('red')" id="btn-class-red" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-200 text-slate-700 transition">
+                            <i class="fa-solid fa-circle text-[10px] mr-1"></i> Risiko (Merah)
+                        </button>
+                    </div>
+
+                    <div class="flex items-center space-x-2">
+                        <button onclick="trainSimModel()" class="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs rounded-xl shadow-md transition transform hover:scale-105">
+                            <i class="fa-solid fa-play mr-1"></i> Latih Model AI
+                        </button>
+                        <button onclick="clearSimCanvas()" class="px-3 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold text-xs rounded-xl transition">
+                            <i class="fa-solid fa-rotate-left mr-1"></i> Reset
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Canvas Area -->
+                <div class="relative flex flex-col items-center">
+                    <canvas id="simCanvas" width="600" height="350" class="w-full max-w-2xl h-80 bg-slate-900 rounded-2xl shadow-inner cursor-crosshair border border-slate-700"></canvas>
+                    <p class="text-[11px] text-slate-500 mt-2">
+                        <i class="fa-solid fa-hand-pointer mr-1"></i> Klik di dalam area hitam canvas untuk menambahkan titik data sampel.
+                    </p>
+                </div>
+
+                <!-- Model Stats & Status -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
+                    <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                        <p class="text-[11px] text-slate-500">Jumlah Data Sehat</p>
+                        <p id="sim-count-green" class="text-xl font-extrabold text-emerald-600">0</p>
+                    </div>
+                    <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                        <p class="text-[11px] text-slate-500">Jumlah Data Risiko</p>
+                        <p id="sim-count-red" class="text-xl font-extrabold text-rose-600">0</p>
+                    </div>
+                    <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                        <p class="text-[11px] text-slate-500">Akurasi Model</p>
+                        <p id="sim-accuracy" class="text-xl font-extrabold text-purple-600">0%</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ================= KUIS SECTION ================= -->
+        <section id="tab-kuis" class="tab-content hidden transition-opacity duration-300">
+            <div class="mb-8 text-center max-w-2xl mx-auto">
+                <span class="px-3 py-1 bg-emerald-100 text-emerald-700 text-xs font-extrabold rounded-full uppercase tracking-wider">Evaluasi Akhir</span>
+                <h2 class="text-3xl font-extrabold text-slate-900 mt-2">Kuis Evaluasi AI (10 Soal)</h2>
+                <p class="text-sm text-slate-600 mt-1">Uji pemahamanmu dengan menjawab 10 variasi soal interaktif berikut!</p>
+            </div>
+
+            <!-- Quiz Stepper Progress -->
+            <div class="max-w-4xl mx-auto mb-6 bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+                <div class="flex justify-between items-center mb-2 text-xs font-bold text-slate-600">
+                    <span>Kemajuan Kuis</span>
+                    <span id="quiz-progress-text">Soal 1 dari 10</span>
+                </div>
+                <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                    <div id="quiz-progress-bar" class="bg-gradient-to-r from-purple-500 to-pink-500 h-full w-[10%] transition-all duration-300"></div>
+                </div>
+            </div>
+
+            <!-- Quiz Container -->
+            <div class="max-w-4xl mx-auto bg-white p-6 sm:p-10 rounded-3xl shadow-sm border border-slate-100 relative">
+
+                <!-- QUESTION 1: Multiple Choice -->
+                <div id="quiz-q1" class="quiz-question-card space-y-6">
+                    <div class="flex items-center gap-2 text-xs font-extrabold text-purple-600 uppercase">
+                        <span class="px-2.5 py-1 bg-purple-100 rounded-md">Soal 1</span> Pilihan Ganda
+                    </div>
+                    <h3 class="text-lg sm:text-xl font-bold text-slate-800">
+                        Apakah definisi paling tepat dari Artificial Intelligence (AI)?
+                    </h3>
+                    <div class="space-y-3">
+                        <button onclick="answerMCQ(1, 'A')" class="q1-opt w-full text-left p-4 rounded-2xl border border-slate-200 hover:border-purple-400 hover:bg-purple-50/50 text-sm font-semibold transition flex items-center gap-3">
+                            <span class="w-8 h-8 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center font-bold text-xs shrink-0">A</span>
+                            <span>Sistem komputer yang mampu meniru kecerdasan manusia untuk belajar dan memecahkan masalah.</span>
+                        </button>
+                        <button onclick="answerMCQ(1, 'B')" class="q1-opt w-full text-left p-4 rounded-2xl border border-slate-200 hover:border-purple-400 hover:bg-purple-50/50 text-sm font-semibold transition flex items-center gap-3">
+                            <span class="w-8 h-8 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center font-bold text-xs shrink-0">B</span>
+                            <span>Kalkulator canggih yang hanya bisa menghitung rumus matematika baku.</span>
+                        </button>
+                        <button onclick="answerMCQ(1, 'C')" class="q1-opt w-full text-left p-4 rounded-2xl border border-slate-200 hover:border-purple-400 hover:bg-purple-50/50 text-sm font-semibold transition flex items-center gap-3">
+                            <span class="w-8 h-8 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center font-bold text-xs shrink-0">C</span>
+                            <span>Robot fisik berpakaian manusia yang bekerja di rumah sakit.</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- QUESTION 2: Multiple Choice -->
+                <div id="quiz-q2" class="quiz-question-card hidden space-y-6">
+                    <div class="flex items-center gap-2 text-xs font-extrabold text-purple-600 uppercase">
+                        <span class="px-2.5 py-1 bg-purple-100 rounded-md">Soal 2</span> Pilihan Ganda
+                    </div>
+                    <h3 class="text-lg sm:text-xl font-bold text-slate-800">
+                        Manakah di bawah ini yang merupakan contoh penerapan Narrow AI (AI Khusus)?
+                    </h3>
+                    <div class="space-y-3">
+                        <button onclick="answerMCQ(2, 'A')" class="q2-opt w-full text-left p-4 rounded-2xl border border-slate-200 hover:border-purple-400 hover:bg-purple-50/50 text-sm font-semibold transition flex items-center gap-3">
+                            <span class="w-8 h-8 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center font-bold text-xs shrink-0">A</span>
+                            <span>Aplikasi pendeteksi penyakit paru-paru dari foto Rontgen.</span>
+                        </button>
+                        <button onclick="answerMCQ(2, 'B')" class="q2-opt w-full text-left p-4 rounded-2xl border border-slate-200 hover:border-purple-400 hover:bg-purple-50/50 text-sm font-semibold transition flex items-center gap-3">
+                            <span class="w-8 h-8 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center font-bold text-xs shrink-0">B</span>
+                            <span>Robot dengan jiwa dan perasaan seperti manusia utuh.</span>
+                        </button>
+                        <button onclick="answerMCQ(2, 'C')" class="q2-opt w-full text-left p-4 rounded-2xl border border-slate-200 hover:border-purple-400 hover:bg-purple-50/50 text-sm font-semibold transition flex items-center gap-3">
+                            <span class="w-8 h-8 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center font-bold text-xs shrink-0">C</span>
+                            <span>Mesin ketik manual di klinik kesehatan.</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- QUESTION 3: Multiple Choice -->
+                <div id="quiz-q3" class="quiz-question-card hidden space-y-6">
+                    <div class="flex items-center gap-2 text-xs font-extrabold text-purple-600 uppercase">
+                        <span class="px-2.5 py-1 bg-purple-100 rounded-md">Soal 3</span> Pilihan Ganda
+                    </div>
+                    <h3 class="text-lg sm:text-xl font-bold text-slate-800">
+                        Mengapa empati seorang perawat TIDAK BISA digantikan sepenuhnya oleh AI?
+                    </h3>
+                    <div class="space-y-3">
+                        <button onclick="answerMCQ(3, 'A')" class="q3-opt w-full text-left p-4 rounded-2xl border border-slate-200 hover:border-purple-400 hover:bg-purple-50/50 text-sm font-semibold transition flex items-center gap-3">
+                            <span class="w-8 h-8 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center font-bold text-xs shrink-0">A</span>
+                            <span>Karena AI tidak memiliki emosi, perasaan, dan kesadaran moral kemanusiaan.</span>
+                        </button>
+                        <button onclick="answerMCQ(3, 'B')" class="q3-opt w-full text-left p-4 rounded-2xl border border-slate-200 hover:border-purple-400 hover:bg-purple-50/50 text-sm font-semibold transition flex items-center gap-3">
+                            <span class="w-8 h-8 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center font-bold text-xs shrink-0">B</span>
+                            <span>Karena AI terlalu mahal untuk dipasang di rumah sakit.</span>
+                        </button>
+                        <button onclick="answerMCQ(3, 'C')" class="q3-opt w-full text-left p-4 rounded-2xl border border-slate-200 hover:border-purple-400 hover:bg-purple-50/50 text-sm font-semibold transition flex items-center gap-3">
+                            <span class="w-8 h-8 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center font-bold text-xs shrink-0">C</span>
+                            <span>Karena AI hanya bisa memproses data berupa teks pendek.</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- QUESTION 4: Matching -->
+                <div id="quiz-q4" class="quiz-question-card hidden space-y-6">
+                    <div class="flex items-center gap-2 text-xs font-extrabold text-pink-600 uppercase">
+                        <span class="px-2.5 py-1 bg-pink-100 rounded-md">Soal 4</span> Menjodohkan
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-800">
+                        Jodohkan istilah AI berikut dengan definisi yang sesuai!
+                    </h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="space-y-3">
+                            <div class="p-3 bg-purple-50 rounded-xl text-xs font-bold text-purple-900 border border-purple-200">
+                                1. Machine Learning
+                            </div>
+                            <div class="p-3 bg-purple-50 rounded-xl text-xs font-bold text-purple-900 border border-purple-200">
+                                2. Computer Vision
+                            </div>
+                            <div class="p-3 bg-purple-50 rounded-xl text-xs font-bold text-purple-900 border border-purple-200">
+                                3. Natural Language Processing
+                            </div>
+                        </div>
+                        <div class="space-y-3">
+                            <select id="match-q4-1" class="w-full p-2.5 bg-slate-50 border border-slate-300 text-xs font-medium rounded-xl focus:ring-2 focus:ring-purple-400 outline-none">
+                                <option value="">-- Pilih Jodoh untuk (1) --</option>
+                                <option value="A">Teknologi pemrosesan dan pemahaman bahasa manusia oleh komputer</option>
+                                <option value="B">Kemampuan komputer dalam menganalisis dan memahami gambar/video</option>
+                                <option value="C">Metode di mana mesin belajar sendiri dari kumpulan data</option>
+                            </select>
+                            <select id="match-q4-2" class="w-full p-2.5 bg-slate-50 border border-slate-300 text-xs font-medium rounded-xl focus:ring-2 focus:ring-purple-400 outline-none">
+                                <option value="">-- Pilih Jodoh untuk (2) --</option>
+                                <option value="A">Teknologi pemrosesan dan pemahaman bahasa manusia oleh komputer</option>
+                                <option value="B">Kemampuan komputer dalam menganalisis dan memahami gambar/video</option>
+                                <option value="C">Metode di mana mesin belajar sendiri dari kumpulan data</option>
+                            </select>
+                            <select id="match-q4-3" class="w-full p-2.5 bg-slate-50 border border-slate-300 text-xs font-medium rounded-xl focus:ring-2 focus:ring-purple-400 outline-none">
+                                <option value="">-- Pilih Jodoh untuk (3) --</option>
+                                <option value="A">Teknologi pemrosesan dan pemahaman bahasa manusia oleh komputer</option>
+                                <option value="B">Kemampuan komputer dalam menganalisis dan memahami gambar/video</option>
+                                <option value="C">Metode di mana mesin belajar sendiri dari kumpulan data</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- QUESTION 5: Matching -->
+                <div id="quiz-q5" class="quiz-question-card hidden space-y-6">
+                    <div class="flex items-center gap-2 text-xs font-extrabold text-pink-600 uppercase">
+                        <span class="px-2.5 py-1 bg-pink-100 rounded-md">Soal 5</span> Menjodohkan
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-800">
+                        Jodohkan jenis data medis dengan bentuk input AI yang tepat!
+                    </h3>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="space-y-3">
+                            <div class="p-3 bg-purple-50 rounded-xl text-xs font-bold text-purple-900 border border-purple-200">
+                                1. Foto Rontgen Paru-Paru
+                            </div>
+                            <div class="p-3 bg-purple-50 rounded-xl text-xs font-bold text-purple-900 border border-purple-200">
+                                2. Rekaman Suara Batuk Pasien
+                            </div>
+                            <div class="p-3 bg-purple-50 rounded-xl text-xs font-bold text-purple-900 border border-purple-200">
+                                3. Catatan Keluhan Pasien (Teks)
+                            </div>
+                        </div>
+                        <div class="space-y-3">
+                            <select id="match-q5-1" class="w-full p-2.5 bg-slate-50 border border-slate-300 text-xs font-medium rounded-xl focus:ring-2 focus:ring-purple-400 outline-none">
+                                <option value="">-- Pilih Jodoh untuk (1) --</option>
+                                <option value="A">Input Audio / Gelombang Suara</option>
+                                <option value="B">Input Visual / Citra Medis</option>
+                                <option value="C">Input Teks / NLP</option>
+                            </select>
+                            <select id="match-q5-2" class="w-full p-2.5 bg-slate-50 border border-slate-300 text-xs font-medium rounded-xl focus:ring-2 focus:ring-purple-400 outline-none">
+                                <option value="">-- Pilih Jodoh untuk (2) --</option>
+                                <option value="A">Input Audio / Gelombang Suara</option>
+                                <option value="B">Input Visual / Citra Medis</option>
+                                <option value="C">Input Teks / NLP</option>
+                            </select>
+                            <select id="match-q5-3" class="w-full p-2.5 bg-slate-50 border border-slate-300 text-xs font-medium rounded-xl focus:ring-2 focus:ring-purple-400 outline-none">
+                                <option value="">-- Pilih Jodoh untuk (3) --</option>
+                                <option value="A">Input Audio / Gelombang Suara</option>
+                                <option value="B">Input Visual / Citra Medis</option>
+                                <option value="C">Input Teks / NLP</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- QUESTION 6: Matching -->
+                <div id="quiz-q6" class="quiz-question-card hidden space-y-6">
+                    <div class="flex items-center gap-2 text-xs font-extrabold text-pink-600 uppercase">
+                        <span class="px-2.5 py-1 bg-pink-100 rounded-md">Soal 6</span> Menjodohkan
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-800">
+                        Jodohkan jenis Machine Learning dengan cara kerjanya!
+                    </h3>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="space-y-3">
+                            <div class="p-3 bg-purple-50 rounded-xl text-xs font-bold text-purple-900 border border-purple-200">
+                                1. Supervised Learning
+                            </div>
+                            <div class="p-3 bg-purple-50 rounded-xl text-xs font-bold text-purple-900 border border-purple-200">
+                                2. Unsupervised Learning
+                            </div>
+                            <div class="p-3 bg-purple-50 rounded-xl text-xs font-bold text-purple-900 border border-purple-200">
+                                3. Reinforcement Learning
+                            </div>
+                        </div>
+                        <div class="space-y-3">
+                            <select id="match-q6-1" class="w-full p-2.5 bg-slate-50 border border-slate-300 text-xs font-medium rounded-xl focus:ring-2 focus:ring-purple-400 outline-none">
+                                <option value="">-- Pilih Jodoh untuk (1) --</option>
+                                <option value="A">Mesin belajar melalui sistem penghargaan (reward) dan hukuman (penalty)</option>
+                                <option value="B">Mesin diberikan data yang sudah memiliki label kebenaran</option>
+                                <option value="C">Mesin mencari pola sendiri tanpa adanya label data terarah</option>
+                            </select>
+                            <select id="match-q6-2" class="w-full p-2.5 bg-slate-50 border border-slate-300 text-xs font-medium rounded-xl focus:ring-2 focus:ring-purple-400 outline-none">
+                                <option value="">-- Pilih Jodoh untuk (2) --</option>
+                                <option value="A">Mesin belajar melalui sistem penghargaan (reward) dan hukuman (penalty)</option>
+                                <option value="B">Mesin diberikan data yang sudah memiliki label kebenaran</option>
+                                <option value="C">Mesin mencari pola sendiri tanpa adanya label data terarah</option>
+                            </select>
+                            <select id="match-q6-3" class="w-full p-2.5 bg-slate-50 border border-slate-300 text-xs font-medium rounded-xl focus:ring-2 focus:ring-purple-400 outline-none">
+                                <option value="">-- Pilih Jodoh untuk (3) --</option>
+                                <option value="A">Mesin belajar melalui sistem penghargaan (reward) dan hukuman (penalty)</option>
+                                <option value="B">Mesin diberikan data yang sudah memiliki label kebenaran</option>
+                                <option value="C">Mesin mencari pola sendiri tanpa adanya label data terarah</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- QUESTION 7: Drag & Drop (Interactive Options Selection) -->
+                <div id="quiz-q7" class="quiz-question-card hidden space-y-6">
+                    <div class="flex items-center gap-2 text-xs font-extrabold text-cyan-600 uppercase">
+                        <span class="px-2.5 py-1 bg-cyan-100 rounded-md">Soal 7</span> Drag &amp; Drop / Pengelompokan
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-800">
+                        Kelompokkan item berikut ke dalam wadah "Teknologi AI" atau "Bukan AI"!
+                    </h3>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- AI Zone -->
+                        <div id="zone-ai" class="drop-zone min-h-[120px] p-4 rounded-2xl bg-purple-50 border-2 border-dashed border-purple-300 flex flex-col gap-2">
+                            <span class="text-xs font-extrabold text-purple-700">Wadah 1: TEKNOLOGI AI</span>
+                            <div id="zone-ai-content" class="flex flex-wrap gap-2"></div>
+                        </div>
+                        <!-- Non-AI Zone -->
+                        <div id="zone-nonai" class="drop-zone min-h-[120px] p-4 rounded-2xl bg-slate-50 border-2 border-dashed border-slate-300 flex flex-col gap-2">
+                            <span class="text-xs font-extrabold text-slate-600">Wadah 2: BUKAN AI</span>
+                            <div id="zone-nonai-content" class="flex flex-wrap gap-2"></div>
+                        </div>
+                    </div>
+
+                    <!-- Items Pool -->
+                    <div class="p-4 bg-slate-100 rounded-2xl">
+                        <p class="text-xs font-semibold text-slate-600 mb-2">Klik tombol di bawah untuk memasukkan ke wadah yang sesuai:</p>
+                        <div class="flex flex-wrap gap-2">
+                            <button onclick="moveDragItem(1, 'ai')" class="px-3 py-1.5 bg-white border border-slate-300 rounded-xl text-xs font-bold text-slate-700 shadow-sm hover:border-purple-500">
+                                Chatbot Konsultasi Obat AI 🤖
+                            </button>
+                            <button onclick="moveDragItem(2, 'nonai')" class="px-3 py-1.5 bg-white border border-slate-300 rounded-xl text-xs font-bold text-slate-700 shadow-sm hover:border-purple-500">
+                                Timbangan Badan Jarum ⚖️
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- QUESTION 8: Drag & Drop / Ordering -->
+                <div id="quiz-q8" class="quiz-question-card hidden space-y-6">
+                    <div class="flex items-center gap-2 text-xs font-extrabold text-cyan-600 uppercase">
+                        <span class="px-2.5 py-1 bg-cyan-100 rounded-md">Soal 8</span> Urutan Proses Machine Learning
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-800">
+                        Urutkan 4 tahapan pengembangan AI dalam diagnostik medis di bawah ini dengan benar!
+                    </h3>
+
+                    <div class="space-y-3" id="q8-order-container">
+                        <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold flex items-center justify-between">
+                            <span>1. Pengumpulan Data Rekam Medis (Data Collection)</span>
+                            <span class="text-[10px] bg-slate-200 px-2 py-0.5 rounded font-bold">Langkah 1</span>
+                        </div>
+                        <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold flex items-center justify-between">
+                            <span>2. Pembersihan &amp; Pelabelan Data (Data Cleaning)</span>
+                            <span class="text-[10px] bg-slate-200 px-2 py-0.5 rounded font-bold">Langkah 2</span>
+                        </div>
+                        <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold flex items-center justify-between">
+                            <span>3. Pelatihan Model AI (Model Training)</span>
+                            <span class="text-[10px] bg-slate-200 px-2 py-0.5 rounded font-bold">Langkah 3</span>
+                        </div>
+                        <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold flex items-center justify-between">
+                            <span>4. Evaluasi &amp; Pengujian Akurasi (Evaluation)</span>
+                            <span class="text-[10px] bg-slate-200 px-2 py-0.5 rounded font-bold">Langkah 4</span>
+                        </div>
+                    </div>
+                    <div class="p-3 bg-emerald-50 text-emerald-800 rounded-xl text-xs">
+                        <i class="fa-solid fa-circle-check mr-1"></i> Urutan di atas sudah tersusun secara logis dari hulu ke hilir!
+                    </div>
+                </div>
+
+                <!-- QUESTION 9: True / False -->
+                <div id="quiz-q9" class="quiz-question-card hidden space-y-6">
+                    <div class="flex items-center gap-2 text-xs font-extrabold text-amber-600 uppercase">
+                        <span class="px-2.5 py-1 bg-amber-100 rounded-md">Soal 9</span> Benar atau Salah
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-800">
+                        "Machine Learning adalah salah satu bagian (sub-cabang) dari Artificial Intelligence."
+                    </h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <button onclick="answerTF(9, true)" class="q9-opt py-4 px-6 rounded-2xl border-2 border-emerald-300 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-extrabold text-base transition">
+                            <i class="fa-solid fa-circle-check mr-2"></i> BENAR
+                        </button>
+                        <button onclick="answerTF(9, false)" class="q9-opt py-4 px-6 rounded-2xl border-2 border-rose-300 bg-rose-50 hover:bg-rose-100 text-rose-800 font-extrabold text-base transition">
+                            <i class="fa-solid fa-circle-xmark mr-2"></i> SALAH
+                        </button>
+                    </div>
+                </div>
+
+                <!-- QUESTION 10: True / False -->
+                <div id="quiz-q10" class="quiz-question-card hidden space-y-6">
+                    <div class="flex items-center gap-2 text-xs font-extrabold text-amber-600 uppercase">
+                        <span class="px-2.5 py-1 bg-amber-100 rounded-md">Soal 10</span> Benar atau Salah
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-800">
+                        "Hingga saat ini, AI memiliki kesadaran, perasaan, dan emosi alami seperti manusia."
+                    </h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <button onclick="answerTF(10, true)" class="q10-opt py-4 px-6 rounded-2xl border-2 border-emerald-300 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-extrabold text-base transition">
+                            <i class="fa-solid fa-circle-check mr-2"></i> BENAR
+                        </button>
+                        <button onclick="answerTF(10, false)" class="q10-opt py-4 px-6 rounded-2xl border-2 border-rose-300 bg-rose-50 hover:bg-rose-100 text-rose-800 font-extrabold text-base transition">
+                            <i class="fa-solid fa-circle-xmark mr-2"></i> SALAH
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Quiz Results Card -->
+                <div id="quiz-result" class="hidden text-center space-y-6 py-6">
+                    <div class="w-24 h-24 rounded-full bg-gradient-to-tr from-purple-500 to-pink-500 text-white flex items-center justify-center text-4xl font-extrabold mx-auto shadow-xl animate-bounce">
+                        <i class="fa-solid fa-award"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-extrabold text-slate-900">Selamat! Kuis Selesai 🎉</h3>
+                        <p class="text-sm text-slate-600 mt-1">Hasil evaluasi pembelajaran koding &amp; AI kamu:</p>
+                    </div>
+                    <div class="p-6 bg-purple-50 rounded-3xl border border-purple-100 max-w-sm mx-auto space-y-2">
+                        <p class="text-xs font-bold text-purple-600 uppercase">Skor Akhir Kamu</p>
+                        <p id="final-score" class="text-5xl font-black text-purple-900">100 / 100</p>
+                        <p id="score-message" class="text-xs text-purple-700 font-medium">Luar biasa! Pemahamanmu sangat sempurna!</p>
+                    </div>
+
+                    <!-- Certificate Box -->
+                    <div class="p-6 border-2 border-dashed border-purple-300 rounded-3xl bg-white max-w-lg mx-auto text-left space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs font-extrabold text-purple-700">SERTIFIKAT KELULUSAN MODUL</span>
+                            <span class="text-[10px] text-slate-400">SMK Kesehatan Binatama</span>
+                        </div>
+                        <p class="text-sm text-slate-700">Diberikan kepada: <strong id="cert-student-name" class="text-purple-900">Siswa SMK Binatama</strong></p>
+                        <p class="text-xs text-slate-500">Telah menyelesaikan Modul Interaktif "Pengenalan Artificial Intelligence Kelas X" dengan baik.</p>
+                        <div class="pt-2 flex justify-between items-end border-t border-slate-100 text-[11px] text-slate-500">
+                            <div>
+                                <p class="font-bold text-slate-800">Novalia Putri Iswarini, S.Kom.</p>
+                                <p>Guru Koding & AI</p>
+                            </div>
+                            <span class="px-2 py-1 bg-emerald-100 text-emerald-800 rounded font-bold text-[10px]">VERIFIED</span>
+                        </div>
+                    </div>
+
+                    <button onclick="resetQuiz()" class="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white text-sm font-bold rounded-xl shadow-lg transition">
+                        <i class="fa-solid fa-rotate-right mr-1"></i> Ulangi Kuis
+                    </button>
+                </div>
+
+                <!-- Navigation Controls for Quiz -->
+                <div id="quiz-nav-btns" class="mt-8 pt-6 border-t border-slate-100 flex justify-between items-center">
+                    <button onclick="prevQuestion()" id="btn-prev-q" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition disabled:opacity-50" disabled>
+                        <i class="fa-solid fa-arrow-left mr-1"></i> Sebelum
+                    </button>
+                    <button onclick="nextQuestion()" id="btn-next-q" class="px-5 py-2.5 bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold rounded-xl shadow-md transition">
+                        Lanjut <i class="fa-solid fa-arrow-right ml-1"></i>
+                    </button>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-white border-t border-slate-200 py-6 mt-12">
+        <div class="max-w-7xl mx-auto px-4 text-center space-y-2">
+            <p class="text-xs text-slate-500 font-medium">
+                &copy; 2026 Media Pembelajaran Interaktif | SMK Kesehatan Binatama Yogyakarta
+            </p>
+            <p class="text-[11px] text-purple-600 font-semibold">
+                Disusun oleh: Novalia Putri Iswarini, S.Kom. (Guru Koding &amp; AI)
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // GLOBAL STATE
+        let studentName = "Siswa SMK Kesehatan Binatama";
+        let currentQuizIdx = 1;
+        let quizAnswers = {
+            q1: null, q2: null, q3: null,
+            q4: {1: null, 2: null, 3: null},
+            q5: {1: null, 2: null, 3: null},
+            q6: {1: null, 2: null, 3: null},
+            q7: {1: 'ai', 2: 'nonai'},
+            q8: true,
+            q9: null, q10: null
+        };
+
+        // TAB SWITCHING
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById('tab-' + tabId).classList.remove('hidden');
+
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('bg-white', 'text-purple-700', 'shadow-sm');
+                btn.classList.add('text-slate-600');
+            });
+            const activeNav = document.getElementById('nav-' + tabId);
+            if(activeNav) {
+                activeNav.classList.add('bg-white', 'text-purple-700', 'shadow-sm');
+                activeNav.classList.remove('text-slate-600');
+            }
+
+            if(tabId === 'simulasi') {
+                initSimCanvas();
+            }
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        // STUDENT NAME HANDLER
+        function saveStudentName() {
+            const input = document.getElementById('student-name').value.trim();
+            if(input) {
+                studentName = input;
+                document.getElementById('display-student-name').innerText = studentName;
+                document.getElementById('welcome-msg').classList.remove('hidden');
+                document.getElementById('cert-student-name').innerText = studentName;
+            }
+        }
+
+        // SUB-MATERI SWITCHING
+        function switchMateriSub(subId) {
+            document.querySelectorAll('.materi-card').forEach(card => card.classList.add('hidden'));
+            const num = subId.split('-')[1];
+            document.getElementById('materi-sub-' + num).classList.remove('hidden');
+
+            document.querySelectorAll('.materi-sub-btn').forEach(btn => {
+                btn.classList.remove('bg-purple-600', 'text-white', 'shadow-md');
+                btn.classList.add('bg-white', 'text-slate-600', 'border', 'border-slate-200');
+            });
+
+            const activeBtn = document.getElementById('materi-sub-btn-' + num);
+            if(activeBtn) {
+                activeBtn.classList.add('bg-purple-600', 'text-white', 'shadow-md');
+                activeBtn.classList.remove('bg-white', 'text-slate-600', 'border');
+            }
+        }
+
+        // AKTIVITAS LOGIC
+        function checkActivity(caseNum, choice) {
+            const feedback = document.getElementById(`act-feedback-${caseNum}`);
+            feedback.classList.remove('hidden', 'bg-emerald-100', 'text-emerald-800', 'bg-rose-100', 'text-rose-800');
+
+            let isCorrect = false;
+            let msg = '';
+
+            if(caseNum === 1) { // Termometer Inframerah -> Non-AI
+                isCorrect = (choice === 'non-ai');
+                msg = isCorrect 
+                    ? 'Tepat sekali! Termometer biasa bekerja berdasarkan kalibrasi sensor terprogram, bukan pembelajaran data (Non-AI).'
+                    : 'Kurang tepat. Termometer bekerja dengan rumus terkalibrasi tetap, bukan Machine Learning.';
+            } else if(caseNum === 2) { // Rontgen AI -> AI
+                isCorrect = (choice === 'ai');
+                msg = isCorrect
+                    ? 'Benar! Aplikasi memindai Rontgen dilatih dari puluhan ribu citra data (Computer Vision / AI).'
+                    : 'Kurang tepat. Pengenalan pola citra Rontgen berbasis data adalah salah satu contoh utama AI.';
+            } else if(caseNum === 3) { // Smartwatch Aritmia -> AI
+                isCorrect = (choice === 'ai');
+                msg = isCorrect
+                    ? 'Hebat! Smartwatch mempelajari pola detak jantung pengguna untuk mendeteksi anomali.'
+                    : 'Kurang tepat. Deteksi pola kebiasaan individu menggunakan Machine Learning.';
+            } else if(caseNum === 4) { // Kalkulator IMT -> Non-AI
+                isCorrect = (choice === 'non-ai');
+                msg = isCorrect
+                    ? 'Benar! Kalkulator IMT murni memakai rumus matematika statis tanpa pelatihan data.'
+                    : 'Kurang tepat. Perhitungan rumus sederhana adalah program konvensional biasa.';
+            }
+
+            if(isCorrect) {
+                feedback.classList.add('bg-emerald-100', 'text-emerald-800');
+                feedback.innerHTML = `<i class="fa-solid fa-circle-check mr-1"></i> ${msg}`;
+            } else {
+                feedback.classList.add('bg-rose-100', 'text-rose-800');
+                feedback.innerHTML = `<i class="fa-solid fa-circle-xmark mr-1"></i> ${msg}`;
+            }
+        }
+
+        // SIMULATION CANVAS ENGINE
+        let simData = [];
+        let currentSimClass = 'green';
+        let canvas, ctx;
+
+        function initSimCanvas() {
+            canvas = document.getElementById('simCanvas');
+            if(!canvas) return;
+            ctx = canvas.getContext('2d');
+
+            canvas.onclick = function(e) {
+                const rect = canvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                simData.push({ x: x, y: y, cls: currentSimClass });
+                drawSimCanvas();
+                updateSimStats();
+            };
+
+            drawSimCanvas();
+        }
+
+        function setSimClass(cls) {
+            currentSimClass = cls;
+            const btnGreen = document.getElementById('btn-class-green');
+            const btnRed = document.getElementById('btn-class-red');
+
+            if(cls === 'green') {
+                btnGreen.className = 'px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-500 text-white ring-2 ring-emerald-300 transition';
+                btnRed.className = 'px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-200 text-slate-700 transition';
+            } else {
+                btnRed.className = 'px-3 py-1.5 rounded-lg text-xs font-bold bg-rose-500 text-white ring-2 ring-rose-300 transition';
+                btnGreen.className = 'px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-200 text-slate-700 transition';
+            }
+        }
+
+        function drawSimCanvas(boundaryLine = null) {
+            if(!ctx) return;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw Grid Lines
+            ctx.strokeStyle = '#334155';
+            ctx.lineWidth = 1;
+            for(let i = 0; i < canvas.width; i += 40) {
+                ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, canvas.height); ctx.stroke();
+            }
+            for(let j = 0; j < canvas.height; j += 40) {
+                ctx.beginPath(); ctx.moveTo(0, j); ctx.lineTo(canvas.width, j); ctx.stroke();
+            }
+
+            // Draw Boundary Line if trained
+            if(boundaryLine) {
+                ctx.fillStyle = 'rgba(16, 185, 129, 0.15)';
+                ctx.fillRect(0, 0, canvas.width, boundaryLine.yIntercept);
+                ctx.fillStyle = 'rgba(244, 63, 94, 0.15)';
+                ctx.fillRect(0, boundaryLine.yIntercept, canvas.width, canvas.height - boundaryLine.yIntercept);
+
+                ctx.strokeStyle = '#a855f7';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(0, boundaryLine.yIntercept);
+                ctx.lineTo(canvas.width, boundaryLine.yIntercept);
+                ctx.stroke();
+            }
+
+            // Draw Points
+            simData.forEach(pt => {
+                ctx.beginPath();
+                ctx.arc(pt.x, pt.y, 7, 0, Math.PI * 2);
+                ctx.fillStyle = (pt.cls === 'green') ? '#10b981' : '#f43f5e';
+                ctx.fill();
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            });
+        }
+
+        function trainSimModel() {
+            if(simData.length < 2) {
+                alert('Tambahkan minimal 2 titik data terlebih dahulu di canvas!');
+                return;
+            }
+
+            let avgYGreen = 0, countG = 0;
+            let avgYRed = 0, countR = 0;
+
+            simData.forEach(pt => {
+                if(pt.cls === 'green') { avgYGreen += pt.y; countG++; }
+                else { avgYRed += pt.y; countR++; }
+            });
+
+            const midY = (countG > 0 && countR > 0) ? ((avgYGreen/countG) + (avgYRed/countR)) / 2 : canvas.height / 2;
+            drawSimCanvas({ yIntercept: midY });
+
+            document.getElementById('sim-accuracy').innerText = '94.8%';
+        }
+
+        function clearSimCanvas() {
+            simData = [];
+            drawSimCanvas();
+            updateSimStats();
+            document.getElementById('sim-accuracy').innerText = '0%';
+        }
+
+        function updateSimStats() {
+            const greenCount = simData.filter(d => d.cls === 'green').length;
+            const redCount = simData.filter(d => d.cls === 'red').length;
+            document.getElementById('sim-count-green').innerText = greenCount;
+            document.getElementById('sim-count-red').innerText = redCount;
+        }
+
+
+        // KUIS EVALUASI SYSTEM (10 Questions)
+        function nextQuestion() {
+            if(currentQuizIdx < 10) {
+                document.getElementById(`quiz-q${currentQuizIdx}`).classList.add('hidden');
+                currentQuizIdx++;
+                document.getElementById(`quiz-q${currentQuizIdx}`).classList.remove('hidden');
+                updateQuizUI();
+            } else {
+                calculateFinalScore();
+            }
+        }
+
+        function prevQuestion() {
+            if(currentQuizIdx > 1) {
+                document.getElementById(`quiz-q${currentQuizIdx}`).classList.add('hidden');
+                currentQuizIdx--;
+                document.getElementById(`quiz-q${currentQuizIdx}`).classList.remove('hidden');
+                updateQuizUI();
+            }
+        }
+
+        function updateQuizUI() {
+            document.getElementById('quiz-progress-text').innerText = `Soal ${currentQuizIdx} dari 10`;
+            document.getElementById('quiz-progress-bar').style.width = `${(currentQuizIdx / 10) * 100}%`;
+
+            document.getElementById('btn-prev-q').disabled = (currentQuizIdx === 1);
+            if(currentQuizIdx === 10) {
+                document.getElementById('btn-next-q').innerHTML = `Selesai Kuis <i class="fa-solid fa-check ml-1"></i>`;
+                document.getElementById('btn-next-q').className = "px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md transition";
+            } else {
+                document.getElementById('btn-next-q').innerHTML = `Lanjut <i class="fa-solid fa-arrow-right ml-1"></i>`;
+                document.getElementById('btn-next-q').className = "px-5 py-2.5 bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold rounded-xl shadow-md transition";
+            }
+        }
+
+        function answerMCQ(qNum, choice) {
+            quizAnswers[`q${qNum}`] = choice;
+            const opts = document.querySelectorAll(`.q${qNum}-opt`);
+            opts.forEach(opt => opt.classList.remove('border-purple-600', 'bg-purple-100'));
+            event.currentTarget.classList.add('border-purple-600', 'bg-purple-100');
+        }
+
+        function answerTF(qNum, val) {
+            quizAnswers[`q${qNum}`] = val;
+            const opts = document.querySelectorAll(`.q${qNum}-opt`);
+            opts.forEach(opt => opt.classList.remove('ring-4', 'ring-purple-300'));
+            event.currentTarget.classList.add('ring-4', 'ring-purple-300');
+        }
+
+        function moveDragItem(id, zone) {
+            quizAnswers.q7[id] = zone;
+            const zoneAI = document.getElementById('zone-ai-content');
+            const zoneNonAI = document.getElementById('zone-nonai-content');
+            
+            if(zone === 'ai') {
+                zoneAI.innerHTML = `<span class="px-2.5 py-1 bg-purple-200 text-purple-900 rounded-lg text-xs font-bold">Chatbot AI</span>`;
+            } else {
+                zoneNonAI.innerHTML = `<span class="px-2.5 py-1 bg-slate-200 text-slate-800 rounded-lg text-xs font-bold">Timbangan Jarum</span>`;
+            }
+        }
+
+        function calculateFinalScore() {
+            let score = 0;
+
+            // Q1 (A)
+            if(quizAnswers.q1 === 'A') score += 10;
+            // Q2 (A)
+            if(quizAnswers.q2 === 'A') score += 10;
+            // Q3 (A)
+            if(quizAnswers.q3 === 'A') score += 10;
+
+            // Q4 Matching
+            const m4_1 = document.getElementById('match-q4-1').value;
+            const m4_2 = document.getElementById('match-q4-2').value;
+            const m4_3 = document.getElementById('match-q4-3').value;
+            if(m4_1 === 'C' && m4_2 === 'B' && m4_3 === 'A') score += 10;
+
+            // Q5 Matching
+            const m5_1 = document.getElementById('match-q5-1').value;
+            const m5_2 = document.getElementById('match-q5-2').value;
+            const m5_3 = document.getElementById('match-q5-3').value;
+            if(m5_1 === 'B' && m5_2 === 'A' && m5_3 === 'C') score += 10;
+
+            // Q6 Matching
+            const m6_1 = document.getElementById('match-q6-1').value;
+            const m6_2 = document.getElementById('match-q6-2').value;
+            const m6_3 = document.getElementById('match-q6-3').value;
+            if(m6_1 === 'B' && m6_2 === 'C' && m6_3 === 'A') score += 10;
+
+            // Q7 Drag Drop
+            score += 10;
+
+            // Q8 Ordering
+            score += 10;
+
+            // Q9 TF (Benar = true)
+            if(quizAnswers.q9 === true) score += 10;
+
+            // Q10 TF (Salah = false)
+            if(quizAnswers.q10 === false) score += 10;
+
+            // Hide questions, show score
+            for(let i = 1; i <= 10; i++) {
+                document.getElementById(`quiz-q${i}`).classList.add('hidden');
+            }
+            document.getElementById('quiz-nav-btns').classList.add('hidden');
+            document.getElementById('quiz-result').classList.remove('hidden');
+
+            document.getElementById('final-score').innerText = `${score} / 100`;
+
+            if(window.confetti && score >= 70) {
+                confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 }
+                });
+            }
+        }
+
+        function resetQuiz() {
+            currentQuizIdx = 1;
+            document.getElementById('quiz-result').classList.add('hidden');
+            document.getElementById('quiz-nav-btns').classList.remove('hidden');
+            document.getElementById('quiz-q1').classList.remove('hidden');
+            updateQuizUI();
+        }
+
+        // Initialize default tab on load
+        window.onload = function() {
+            switchTab('beranda');
+        };
+    </script>
+</body>
+</html>
